@@ -1,0 +1,41 @@
+print("Changing user...")
+write("Username: ")
+username = read()
+
+write("Password: ")
+passwd = read("*")
+
+	file = fs.open("users/"..username,"r")
+	if not fs.exists("users/"..username) then
+
+
+		print("Access denied!")
+		sleep(1)
+		login()
+
+	elseif fs.exists("users/"..username) then
+		local fileData = {}
+		local line = file.readLine()
+		repeat
+		table.insert(fileData, line)
+		line = file.readLine()
+		until line == nil -- readLine()
+		file.close()
+		
+		local passFromFile = fileData[1]
+		if passwd == passFromFile then
+
+
+		print("Login successful!")
+		print("You're now logged in as '"..username.."'")
+		sleep(1)
+		os.run( {}, "/.sys/etc/bios.lua" , username)
+
+
+	else
+		print("Access denied!")
+		sleep(1)
+		login()
+
+end
+end

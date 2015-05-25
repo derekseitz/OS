@@ -1,0 +1,43 @@
+os.pullEvent = os.pullEventRaw
+local sPath = ".:/rom/programs:/.sys/programs"
+if turtle then
+	sPath = sPath..":/rom/programs/turtle"
+else
+	sPath = sPath..":/rom/programs/computer"
+end
+if http then
+	sPath = sPath..":/rom/programs/http"
+end
+if term.isColor() then
+	sPath = sPath..":/rom/programs/color"
+end
+
+shell.setPath( sPath )
+help.setPath( ".:/rom/help:/.sys/etc/help" )
+
+shell.setAlias( "ls", "list" )
+shell.setAlias( "apt-get", "cc-get" )
+shell.setAlias( "yum", "cc-get" )
+shell.setAlias( "dir", "list" )
+shell.setAlias( "cp", "copy" )
+shell.setAlias( "mv", "move" )
+shell.setAlias( "rm", "delete" )
+shell.setAlias( "preview", "edit" )
+shell.setAlias( "reg", "register")
+shell.setAlias( "reguser", "register")
+shell.setAlias( "unreg", "unregister")
+shell.setAlias( "changepw", "changepassword")
+shell.setAlias( "chnguser", "changeuser")
+
+if fs.exists( "/.sys/autorun" ) and fs.isDir( "/.sys/autorun" ) then
+	local tFiles = fs.list( "/.sys/autorun" )
+	table.sort( tFiles )
+	for n, sFile in ipairs( tFiles ) do
+		if string.sub( sFile, 1, 1 ) ~= "." then
+			local sPath = "/.sys/autorun/"..sFile
+			if not fs.isDir( sPath ) then
+				shell.run( sPath )
+			end
+		end
+	end
+end

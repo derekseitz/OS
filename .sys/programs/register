@@ -1,0 +1,33 @@
+
+
+print("Create new account")
+
+write("Username: ")
+usrName = read()
+
+write("Password: ")
+local pass = read("*")
+fs.makeDir("users")
+if not fs.exists("/users/"..usrName) then
+local file = fs.open("/users/"..usrName, "w")
+
+if file then
+  file.writeLine(pass)
+  file.close() -- don't forget to close it
+else
+  print("!!Error opening file!!")
+  return
+end
+
+sleep(0.5)
+print("Done!")
+sleep(0.5)
+elseif fs.exists("/users/"..usrName) then
+
+print("User already registered!")
+sleep(1)
+
+
+end
+
+

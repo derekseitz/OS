@@ -1,0 +1,153 @@
+function downloadUpdate()
+function download(url, file, dir)
+  local content = http.get(url).readAll()
+  if not content then
+    print("Could not connect to servers...")
+  else
+ --print("creating dir: "..dir)
+  fs.makeDir(dir)
+ -- shell.setDir(dir)
+--    print("Filename : \""..file.."\"")
+ -- print("Directory : \""..dir.."\"")
+sleep(5)
+ -- print("Writing : \""..content.."\"")
+-- shell.run("rm "..dir..file)
+  handler=io.open(dir..file,"w")
+	handler:write(content)
+	handler:close()
+	end
+end
+local function getRunningPath()
+  local runningProgram = shell.getRunningProgram()
+  local programName = fs.getName(runningProgram)
+  return runningProgram:sub( 1, #runningProgram - #programName )
+end
+
+
+
+oldpath = getRunningPath()
+
+
+write("\nDownloading file-list from HuskyOS server...")
+sleep(2)
+local data = http.get("http://huskyos.schwarzis.net/huskyos_serverupdate.php?update_to="..nowneededvers)
+if not data then
+	print("Couldn't connect to the HuskyOS servers!")
+error()
+end
+data = data.readAll()
+local Table = textutils.unserialize(data)
+write("Done!")
+write("\n\nChecking file-list for errors...")
+sleep(1)
+for i=1,#Table do
+if Table.path[i] == nil or Table.filename[i] == nil then
+write("Error found!")
+print("\n\nDetected an error in file-list: Row "..i)
+print("Can't continue download!")
+print("Please try again later...\n")
+sleep(5)
+config.load("/","HuskyOS.conf")
+config.writeVal("resumeUpdate","false")
+config.writeVal("resumeUpdateNextVers", "nil")
+config.writeVal("resumeUpdateNeededVers", "nil")
+config.save()
+error()
+end
+end
+write("Done!")
+print("\n\nTotal files to download: "..#Table.."\n")
+a = 100 / #Table
+for i=1,#Table do
+loading = (i-1) * a
+	print("Downloading file	".. i .." of ".. #Table.." : "..string.format("%.f", loading).."% completed")
+	print("downloading "..Table[i].."\n")
+-- print("Saving in: "..Table.path[i] )
+ download(Table[i], Table.filename[i], Table.path[i])
+ 
+ 
+end
+print("100% complete. Download finished!\n")
+sec = 10
+if needRestart == true then
+print("Update will be resumed after restart.")
+config.load("/","HuskyOS.conf")
+config.writeVal("resumeUpdate","true")
+nextVers = nowneededvers + 0.1
+config.writeVal("resumeUpdateNextVers", nextVers)
+config.writeVal("resumeUpdateNeededVers", neededVers)
+config.save()
+else
+config.load("/","HuskyOS.conf")
+config.writeVal("resumeUpdate","false")
+config.writeVal("resumeUpdateNextVers", "nil")
+config.writeVal("resumeUpdateNeededVers", "nil")
+config.save()
+end
+while true do
+print("HuskyOS will restart in: "..sec.." Seconds.")
+sleep(1)
+sec = sec - 1
+if sec == 0 then
+os.reboot()
+end
+end
+
+end
+
+
+
+
+
+config.load("/","HuskyOS.conf")
+term.setCursorPos(1,1)
+print("Loading")
+print("Please wait...")
+local response = http.get(
+                    "http://huskyos.schwarzis.net/checkversion.php?edition="..os.edition().."&n=y"
+                    )
+                   
+            if response then
+                    local sResponse = response.readAll()
+                    response.close()
+					local Table = textutils.unserialize(sResponse)
+					onlineVers = tonumber(Table.build[1])
+                    localVers = os.versionBuild()
+					end
+sleep(6)
+if localVers == onlineVers then
+applyupdate = true
+needRestart = false
+else
+needRestart = true
+end
+if applyupdate == true then
+term.clear()
+term.setCursorPos(1,1)
+print("Applying updates and restoring data...")
+write("please wait... ")
+y = term.getCursorPos()
+for i=1,5 do
+term.setCursorPos(y)
+write("|")
+sleep(0.5)
+term.setCursorPos(y)
+write("/")
+sleep(0.5)
+term.setCursorPos(y)
+write("-")
+sleep(0.5)
+term.setCursorPos(y)
+write("\\")
+sleep(0.5)
+end
+os.reboot()
+end
+
+term.clear()
+term.setCursorPos(1,1)
+nowneededvers = localVers + 0.1
+print("Resuming update to HuskyOS V"..onlineVers.." ...")
+print("Now updating to version "..nowneededvers.."!")
+
+downloadUpdate()

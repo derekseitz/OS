@@ -1,0 +1,159 @@
+os.loadAPI("/.sys/config/HuskyOSconf")
+
+function online()
+textutils.slowWrite("HuskyOS Username: ")
+onlineUser = read()
+textutils.slowWrite("HuskyOS Password: ")
+onlinePassword = read("*")
+print("")
+print("Connecting to the HuskyOS licence servers...")
+post(onlineUser, onlinePassword)
+end
+
+
+function postKey(key, usrName, pw)
+
+                http.request(
+                                "http://huskyos.schwarzis.net/checkSerial.php",
+                                "key="..textutils.urlEncode(tostring(key)).."&"..
+                                "usrName="..textutils.urlEncode(tostring(usrName))
+                )
+ local requesting = true
+ while requesting do
+   local event, url, sourceText = os.pullEvent()
+   if event == "http_success" then
+   local respondedText = sourceText.readAll()
+   if respondedText == "accepted" then
+   print("")
+   
+
+
+   textutils.slowWrite("Writing registry...")
+      config.writeVal("activated","true")
+   print("")
+   sleep(2)
+   
+   local file = fs.open(".sys/etc/.hidden/PkfHosSv1.1","w")
+
+ file.writeLine(usrName)
+ 
+ file.writeLine(pw)
+ 
+ file.writeLine(key)
+
+
+
+
+
+file.close()
+
+   textutils.slowWrite("HuskyOS sucessfully activated!")
+   print("")
+   textutils.slowWrite("Press any key to reboot HuskyOS!")
+   print("")
+      print("")
+   os.pullEvent("key")
+   os.reboot()
+   
+   elseif respondedText == "wrongVersion" then
+    print("")
+   textutils.slowWrite("That key is for an another Version of HuskyOS...")
+  print("")
+  
+   enterSerial(usrName)
+   else
+
+   print("Wrong key!")
+   
+   enterSerial(usrName)
+   end
+   
+   else
+   print("")
+   print("")
+   print("ERROR WHILE CONNECTING TO HUSKYOS ACTIVATION SERVER!")
+   print("")
+   print("Try again...")
+   print("")
+   enterSerial(usrName)
+   end
+   end
+   end
+end
+
+
+
+
+
+function enterSerial(usrName, pw)
+print("")
+textutils.slowWrite("Now enter the serial-key for this version \n(with '-' and upper letters): ")
+key = read()
+postKey(key, usrName, pw)
+end
+
+
+
+
+
+
+
+
+
+
+
+
+function post(one, two)
+                http.request(
+                                "http://huskyos.schwarzis.net/login.php",
+                                "one="..textutils.urlEncode(tostring(one)).."&"..
+                                "two="..textutils.urlEncode(tostring(two))
+                )
+ local requesting = true
+ while requesting do
+   local event, url, sourceText = os.pullEvent()
+   if event == "http_success" then
+     local respondedText = sourceText.readAll()
+     
+     requesting = false
+	 if respondedText == "accepted" then
+	 textutils.slowWrite("Login successfully!")
+	 print("")
+	 
+	 enterSerial(one, two)
+	 
+	 
+	 
+	 else
+	 print("")
+	 print("Bad Login!")
+	 print("Try again!")
+	 print("")
+	 online()
+	 end
+   elseif event == "http_failure" then
+     print("The HuskyOS-Servers doesn't respond.")
+	 print("Try it again later...")
+     requesting = false
+   end
+ end
+ end
+
+term.clear()
+term.setCursorPos(1,1)
+textutils.slowWrite("       ---HuskyOS activation program---")
+if config.readVal("activated") == true then
+print("")
+print("")
+print("You have already registered this version of HuskyOS!")
+print("")
+error()
+else
+print("")
+print("")
+print("You have to be registered and activated your version of HuskyOS at http://huskyos.schwarzis.net")
+print("")
+online()
+end
+
+

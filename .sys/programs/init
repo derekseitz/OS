@@ -1,0 +1,42 @@
+tArgs = { ... }
+
+local function printUsage()
+	term.setTextColour(colours.red)
+	print("Syntax error!")
+end
+	
+if #tArgs < 1 then
+	printUsage()
+	return
+end
+
+if tArgs[1] == "6"
+then print("Rebooting "..os.version())
+print("Stopping services...")
+sleep(1)
+print("Taking snapshot...")
+sleep(5)
+print("Sending STOP to hardware...")
+sleep(2)
+print("")
+term.setTextColour(colours.green)
+print("RESTARTING!")
+sleep(1)
+os.reboot()
+elseif tArgs[1] == "0" then
+print("Shutting down "..os.version())
+print("Stopping services...")
+sleep(1)
+print("Taking snapshot...")
+sleep(5)
+print("Sending STOP to hardware...")
+sleep(2)
+print("")
+term.setTextColour(colours.green)
+print("Goodbye!")
+sleep(1)
+os.shutdown()
+else
+printUsage()
+return
+end

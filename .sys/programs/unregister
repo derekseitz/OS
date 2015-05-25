@@ -1,0 +1,43 @@
+print("Delete existing account...")
+
+write("User you want to delete: ")
+usrName = read()
+
+write("Root password for confirmation: ")
+local pass = read("*")
+
+file = fs.open("users/root","r")
+
+		local fileData = {}
+		local line = file.readLine()
+		repeat
+		table.insert(fileData, line)
+		line = file.readLine()
+		until line == nil -- readLine()
+		file.close()
+		
+		local passFromFile = fileData[1]
+
+		
+if pass == passFromFile then
+
+
+if not fs.exists("/users/"..usrName) then
+
+
+
+print("Error! User does not exist!")
+return
+
+elseif fs.exists("/users/"..usrName) then
+
+print("User recognized! Deleteing...")
+sleep(1)
+fs.delete("/users/"..usrName)
+print("Done!")
+end
+
+else
+print("Wrong root password!")
+
+end

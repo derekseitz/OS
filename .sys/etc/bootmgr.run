@@ -1,0 +1,323 @@
+
+
+
+
+
+
+shell.setAlias( "ls", "list" )
+shell.setAlias( "dir", "list" )
+shell.setAlias( "cp", "copy" )
+shell.setAlias( "mv", "move" )
+shell.setAlias( "rm", "delete" )
+shell.setAlias( "preview", "edit" )
+
+firststart = true
+	sPath = ":/sys/programs"
+	sPath = sPath..":/rom/programs"
+shell.setAlias( "rem" , "delete" )
+shell.setAlias( "reg" , "register" )
+function os.edition()
+	return "server"
+	end
+	
+function os.edition()
+	return "server"
+	end
+	
+function os.info()
+	return "HuskyOS Server by TerraBAS"
+	end
+
+function os.versionNum()
+	return 1.6
+	end
+	
+function os.versionBuild()
+	return 106005
+	end
+	
+function login()
+write("Login as: ")
+username = read()
+
+write(""..username.."'s password: ")
+passwd = read("*")
+
+	file = fs.open("users/"..username,"r")
+	if not fs.exists("users/"..username) then
+
+
+		print("Access denied!")
+		sleep(1)
+		login()
+
+	elseif fs.exists("users/"..username) then
+		local fileData = {}
+		local line = file.readLine()
+		repeat
+		table.insert(fileData, line)
+		line = file.readLine()
+		until line == nil -- readLine()
+		file.close()
+		
+		local passFromFile = fileData[1]
+		if passwd == passFromFile then
+
+
+		print("Login successful!")
+		sleep(1)
+		os.run( {}, "/.sys/etc/bios.lua" , username)
+		
+
+
+	else
+		print("Access denied!")
+		sleep(1)
+		login()
+
+end
+end
+end
+shell.run("/.sys/etc/version")
+term.setCursorPos(1,1)
+os.loadAPI("/.sys/API/config")
+config.load("/","HuskyOS.conf")
+if config.readVal("resumeUpdate") == true then
+shell.run("/.sys/etc/resumeupdate")
+os.reboot()
+end
+print("Bootmgr loaded! Now loading HuskyOS-Server...")
+print("please wait...")
+term.setCursorPos(1,3)
+print("Loading kernel...")
+paintutils.drawLine(1, 19, 1, 19, colours.blue)
+term.setCursorPos(1,4)
+term.setBackgroundColor(colors.black)
+strtup = "5"
+print("Loading API's...")
+term.setBackgroundColor(colors.black)
+os.loadAPI("/modt")
+
+firstBoot = config.readVal("firstboot")
+sleep(1)
+term.setCursorPos(1,5)
+term.setBackgroundColor(colors.black)
+print("Loading services...")
+paintutils.drawLine(1, 19, 3, 19, colours.blue)
+sleep(2)
+term.setBackgroundColor(colors.black)
+term.setCursorPos(1,6)
+print("Initialising network...")
+sleep(0.5)
+term.setBackgroundColor(colors.black)
+term.setCursorPos(1,7)
+print("Initialising drivers...")
+paintutils.drawLine(1, 19, 6, 19, colours.blue)
+sleep(1)
+term.setBackgroundColor(colors.black)
+term.setCursorPos(1,8)
+print("Display driver loaded successfully!")
+sleep(0.5)
+term.setBackgroundColor(colors.black)
+term.setCursorPos(1,9)
+print("Network driver loaded successfully!")
+sleep(2)
+paintutils.drawLine(1, 19, 12, 19, colours.blue)
+term.setBackgroundColor(colors.black)
+term.setCursorPos(1,10)
+print("Touch driver loaded successfully!")
+sleep(0.5)
+
+paintutils.drawLine(1, 19, 16, 19, colours.blue)
+term.setBackgroundColor(colors.black)
+term.setCursorPos(1,11)
+print("Creating virtual machines...")
+print("No virtual machines configured! - Aborting")
+paintutils.drawLine(1, 19, 12, 19, colours.blue)
+term.setBackgroundColor(colors.black)
+term.setCursorPos(1,13)
+print("Loading system files...")
+sleep(1)
+paintutils.drawLine(1, 19, 20, 19, colours.blue)
+term.setBackgroundColor(colors.black)
+term.setCursorPos(1,14)
+print("Checking hdd consistency...")
+sleep(3) 
+paintutils.drawLine(1, 19, 23, 19, colours.blue)
+term.setBackgroundColor(colors.black)
+term.setCursorPos(1,15)
+print("No hdd errors found!")
+paintutils.drawLine(1, 19, 26, 19, colours.blue)
+term.setBackgroundColor(colors.black)
+term.setCursorPos(1,16)
+print("Loading interfaces...")
+sleep(2)
+paintutils.drawLine(1, 19, 30, 19, colours.blue)
+term.setBackgroundColor(colors.black)
+term.setCursorPos(1,17)
+print("Loading users...")
+
+if fs.exists("/users/root") == false then
+term.setBackgroundColor(colors.black)
+term.setCursorPos(1,18)
+print("Creating user 'root'...")
+sleep(1)
+fs.makeDir("users")
+local file = fs.open("/users/root", "w")
+if file then
+  file.writeLine("huskyOS")
+  file.close() -- don't forget to close it
+else
+print("")
+  print("!!Error creating user 'root'!!")
+  print("Startup aborted...")
+end
+end
+
+sleep(0.5)
+print("Checking license...")
+term.setBackgroundColor(colors.black)
+term.setCursorPos(1,18)
+fs.makeDir("/.sys/etc/.hidden")
+if fs.exists("/.sys/etc/.hidden/PkfHosSv1.1") == false then
+local file = io.open("/.sys/etc/.hidden/PkfHosSv1.1", "w") -- open file in read
+file:close()
+end
+print("Reading license-files...")
+sleep(3)
+local file = io.open("/.sys/etc/.hidden/PkfHosSv1.1", "r") -- open file in read
+key = file:read()
+if key == nil then
+activated = false
+else
+activated = true
+end
+
+
+if key == nil and config.readVal("activated") == true then
+term.clear()
+term.setTextColour(colours.red)
+print("\n\nDETECTED CORRUPT/MODIFIED LICENSE!\nYou have to reinstall HuskyOS...")
+sleep(180)
+os.shutdown()
+end
+
+if key ~= nil and config.readVal("activated") == false then
+term.clear()
+term.setTextColour(colours.red)
+print("\n\nDETECTED CORRUPT/MODIFIED LICENSE!\nYou have to reinstall HuskyOS...")
+sleep(180)
+os.shutdown()
+end
+
+if fs.exists("/.sys/etc/.hidden/fblstruS") == true then
+config.writeVal("firstboot","false")
+config.save()
+end
+
+if activated == false then
+print("Reading startups...")
+sleep(3)
+
+
+
+if fs.exists("/.sys/etc/.hidden/fblstruS") == false then
+local file = io.open("/.sys/etc/.hidden/fblstruS", "w") -- open file in write
+file:write(strtup)
+file:close()
+end
+
+
+local file = io.open("/.sys/etc/.hidden/fblstruS", "r") -- open file in read
+if file:read() == nil then
+local file = io.open("/.sys/etc/.hidden/fblstruS", "w") -- open file in write
+file:write("5")
+file:close()
+
+end
+local file = io.open("/.sys/etc/.hidden/fblstruS", "r") -- open file in read
+strtup = file:read() - 1
+--wr = file:read()
+if strtup <= 0 then
+
+
+
+os.run( {} , "/.sys/etc/activateNOW")
+else
+sleep(3)
+print("What does da Fox say?")
+wrte = strtup
+
+local file = io.open("/.sys/etc/.hidden/fblstruS", "w") -- open file in write
+file:write(wrte)
+file:close()
+
+sleep(2)
+print("Error checking license!")
+print("Is HuskyOS up-to-date?")
+print("Sending welcome messg...")
+sleep(2)
+term.clear()
+term.setCursorPos(1,1)
+term.setTextColour(colours.red)
+print("ERROR! HuskyOS-Server is not activated!")
+if strtup == "0.0" then
+print("NO STARTUPS LEFT! YOU HAVE TO ACTIVATE HUSKYOS NEXT BOOT!")
+term.setTextColour(colours.white)
+else
+print("Only " ..strtup.. " startup(s) left!")
+end
+term.setTextColour(colours.white)
+print("")
+print(modt.showmodt())
+--print("Welcome to HuskyOS-Server V "..version.." by TerraBAS!")
+--print("Last login: N/A")
+print("")
+print("SSH Server currently out of order...")
+print("Done loading system!")
+print("Waiting for user input...")
+print("")
+if firstBoot == true then
+
+print("Default user is 'root' and default password is 'huskyOS'!")
+print("You can change the default password with the 'changepw' command...")
+print("")
+login()
+else
+print("")
+login()
+end
+
+end
+
+
+elseif activated == true then
+
+
+sleep(4)
+print("HuskyOS has been activated!")
+print("You're getting free updates!")
+print("Sending welcome message...")
+sleep(3)
+term.clear()
+term.setCursorPos(1,1)
+print("")
+print(modt.showmodt())
+--print("Welcome to HuskyOS-Server V "..version.." by TerraBAS!")
+--print("Last login: N/A")
+print("")
+--print("SSH Server currently out of order...")
+print("Done loading system!")
+print("Waiting for user input...")
+print("")
+
+login()
+
+
+else
+term.clear()
+term.setTextColour(colours.red)
+print("\n\nDETECTED CORRUPT/MODIFIED LICENSE!\nPlease reinstall HuskyOS...")
+sleep(180)
+os.shutdown()
+end
